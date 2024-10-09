@@ -1,3 +1,10 @@
+//
+//  SplashScreenView.swift
+//  IndoorNavigationAStar
+//
+//  Created by Ivan Coppola on 09/10/24.
+//
+
 import SwiftUI
 
 struct SplashScreenView: View {
@@ -6,39 +13,39 @@ struct SplashScreenView: View {
     var body: some View {
         ZStack {
             if isActive {
-                ContentView() // Your main app content goes here
+                ARIndoorNavigationView()
             } else {
                 VStack {
-                    Image(systemName: "sparkles") // Replace with your app logo or image
+                    Image(systemName: "location.fill")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 100, height: 100)
+                        .padding()
                     
-                    Text("Your App Name")
-                        .font(.largeTitle)
+                    Text("AstaR Indoor Navigation")
+                        .font(.title)
                         .bold()
-                        .foregroundColor(.blue)
+                        .multilineTextAlignment(.center)
                 }
+                .padding()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.white)
+                .background(
+                    LinearGradient(
+                        gradient: Gradient(colors: [Color.cyan, Color.blue]),
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
                 .edgesIgnoringSafeArea(.all)
             }
         }
         .onAppear {
-            // Simulate a splash screen delay
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 withAnimation {
                     isActive = true
                 }
             }
         }
-    }
-}
-
-struct ContentView: View {
-    var body: some View {
-        Text("Welcome to the App")
-            .padding()
     }
 }
 

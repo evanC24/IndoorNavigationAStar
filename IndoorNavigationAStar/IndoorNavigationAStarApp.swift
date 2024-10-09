@@ -11,7 +11,7 @@ import SwiftUI
 struct IndoorNavigationAStarApp: App {
     var body: some Scene {
         WindowGroup {
-            ARIndoorNavigationView()
+            SplashScreenView()
         }
     }
 }
