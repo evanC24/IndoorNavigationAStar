@@ -1,17 +1,23 @@
+//
+//  ARViewContainer.swift
+//  IndoorNavigationAStar
+//
+//  Created by Ivan Coppola on 05/10/24.
+//
+
+
 import SwiftUI
 import RealityKit
 import ARKit
 
 struct ARViewContainer: UIViewRepresentable {
-    
-    @Binding var arView: ARView
-    
+    let arView: ARView // Pass ARView directly
+
     func makeUIView(context: Context) -> ARView {
-        arView = ARView(frame: .zero)
         return arView
     }
-    
+
     func updateUIView(_ uiView: ARView, context: Context) {
-        // Update the view when SwiftUI state changes
     }
 }
+

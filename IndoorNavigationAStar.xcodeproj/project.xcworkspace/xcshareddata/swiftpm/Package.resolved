@@ -1,0 +1,15 @@
+{
+  "originHash" : "ad8a738487b795fac1a7648ab3671d92d157f416fb5c8c80acc2fad44bacd172",
+  "pins" : [
+    {
+      "identity" : "positioninglibrary",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tirannosario/PositioningLibrary",
+      "state" : {
+        "revision" : "33c341516ffb4f56f927bcd5dea1fa1b48df0c9d",
+        "version" : "0.2.0"
+      }
+    }
+  ],
+  "version" : 3
+}

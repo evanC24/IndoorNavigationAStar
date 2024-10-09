@@ -6,13 +6,30 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		C4626BDA2CB1362C00972712 /* PositioningLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = C4626BD92CB1362C00972712 /* PositioningLibrary */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		C4626BC72CB1360400972712 /* IndoorNavigationAStar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IndoorNavigationAStar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		C4626BEA2CB1387D00972712 /* Exceptions for "IndoorNavigationAStar" folder in "IndoorNavigationAStar" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = C4626BC62CB1360400972712 /* IndoorNavigationAStar */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		C4626BC92CB1360400972712 /* IndoorNavigationAStar */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C4626BEA2CB1387D00972712 /* Exceptions for "IndoorNavigationAStar" folder in "IndoorNavigationAStar" target */,
+			);
 			path = IndoorNavigationAStar;
 			sourceTree = "<group>";
 		};
@@ -23,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C4626BDA2CB1362C00972712 /* PositioningLibrary in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +83,7 @@
 			);
 			name = IndoorNavigationAStar;
 			packageProductDependencies = (
+				C4626BD92CB1362C00972712 /* PositioningLibrary */,
 			);
 			productName = IndoorNavigationAStar;
 			productReference = C4626BC72CB1360400972712 /* IndoorNavigationAStar.app */;
@@ -94,6 +113,9 @@
 			);
 			mainGroup = C4626BBE2CB1360400972712;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				C4626BD82CB1362C00972712 /* XCRemoteSwiftPackageReference "PositioningLibrary" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C4626BC82CB1360400972712 /* Products */;
 			projectDirPath = "";
@@ -255,11 +277,15 @@
 				DEVELOPMENT_TEAM = BG762HRGVJ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = IndoorNavigationAStar/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Indoor Navigation";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera is needed to provide navigation services";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -267,9 +293,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = ivancoppola.IndoorNavigationAStar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -284,11 +314,15 @@
 				DEVELOPMENT_TEAM = BG762HRGVJ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = IndoorNavigationAStar/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Indoor Navigation";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera is needed to provide navigation services";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -296,9 +330,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = ivancoppola.IndoorNavigationAStar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -324,6 +362,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C4626BD82CB1362C00972712 /* XCRemoteSwiftPackageReference "PositioningLibrary" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tirannosario/PositioningLibrary";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.2.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C4626BD92CB1362C00972712 /* PositioningLibrary */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C4626BD82CB1362C00972712 /* XCRemoteSwiftPackageReference "PositioningLibrary" */;
+			productName = PositioningLibrary;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = C4626BBF2CB1360400972712 /* Project object */;
 }
