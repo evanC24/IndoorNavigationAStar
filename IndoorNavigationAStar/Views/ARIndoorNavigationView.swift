@@ -11,7 +11,7 @@ import RealityKit
 import SwiftUI
 import RealityKit
 
-struct ContentView: View {
+struct ARIndoorNavigationView: View {
     @StateObject private var locationManager = LocationManager()
     @State private var arView = ARView()
     
