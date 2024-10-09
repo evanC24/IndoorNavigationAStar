@@ -1,19 +1,42 @@
-# Pathfinding Project in Swift
+# Pathfinding Algorithm
 
-## Overview
+Swift AR project developed for Mobile Development course '23/'24 at University of Milan (UniMi).
 
-This project implements a pathfinding solution using Swift, designed for navigating through environments with various complexities, such as obstacles and narrow pathways. The algorithm is capable of finding optimal routes while avoiding obstacles, making it ideal for use in applications like game development, robotics, or any scenario requiring efficient navigation.
+## Project Description
 
-## Features
+The objective of this project is to implement a Augmented Reality pathfinding algorithm in Swift, using a grid structure to represent a search space. The algorithm is designed to explore different movement possibilities and find the optimal path between a starting point and a destination within the grid. The current user indoor position is retrieved by an external library, developed in the preovious years by an alumni of the course. This app is an upgrade of PositioningLibrary demo app developed by Rosario Galioto.
+- PositioningLibrary: https://github.com/tirannosario/PositioningLibrary
+- Demo app: https://github.com/tirannosario/TestPositioningLibrary
 
-- **Swift-based Pathfinding**: Optimized for performance with native Swift functionality.
-- **Collision Detection**: Ensures safe navigation by identifying and avoiding obstacles.
-- **Customizable Parameters**: Fine-tune the algorithm’s behavior to suit different environments.
-- **Visualization (if applicable)**: View paths and obstacles directly in the UI.
+## Key Features
 
-## Prerequisites
+- **Pathfinding Algorithm**: Identifies the optimal path between two points in a grid using AStar algorithm.
+- **Grid Configuration**: The grid is customizable in terms of size (width, height).
+- **Collision avoidance**: Obstacles (walls, tables, ecc...) can be placed to increase the complexity of the search and avoid any collision.
+- **Customizable Search Parameters**: Users can modify the algorithm's parameters, such as the maximum step and offset distance from any obstacles.
+- **Dynamic Path Visualization**: Graphical representation, such as an directional arrow, can guide the user towards the goal location suggesting the heading and the direction to get there
+  
+## Requirements
 
-Before running the project, ensure you have the following:
+- **Language**: Swift
+- **Platform**: iOS/macOS
+- **Libraries Used**: PositioningLibrary.
 
-- Xcode 12 or later
-- macOS 10.15 or later
+## Project Structure
+
+
+## Usage
+
+
+
+## Author
+
+- **Author Name**: Ivan Coppola
+- **University**: University of Milan
+- **Course**: MobiDev
+
+## License
+
+This project is distributed under the MIT License.
+
+---
