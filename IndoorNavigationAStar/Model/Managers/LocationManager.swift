@@ -53,8 +53,8 @@ class LocationManager: ObservableObject, LocationObserver {
         let floorMapRect = CGRect(
             x: margin,
             y: margin,
-            width: 150,
-            height: 150
+            width: 200,
+            height: 200
         )
         
         self.arView = arView
@@ -64,13 +64,12 @@ class LocationManager: ObservableObject, LocationObserver {
     
     
     func onLocationUpdate(_ newLocation: ApproxLocation) {
+        locationProvider.centerToUserPosition()
         self.currentLocation = Point(
             x: Float(newLocation.coordinates.x),
             y: Float(newLocation.coordinates.y),
             heading: newLocation.heading
         )
-        
-//        centerToUserPosition()
         
         if let path = self.path, path.count > 0 {
 //                var pathPoints: [Point] = []

@@ -85,14 +85,14 @@ struct ARIndoorNavigationView: View {
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.large)
-                    .disabled(locationManager.currentLocation == nil)
+                    .disabled(locationManager.currentLocation == nil || locationManager.isArrived)
                     
                     Button("Start", systemImage: "figure.walk.departure") {
                         locationManager.createPath()
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
-                    .disabled(locationManager.currentLocation == nil)
+                    .disabled(locationManager.currentLocation == nil || locationManager.isArrived)
                 }
                 
             }
