@@ -25,31 +25,42 @@ struct ARIndoorNavigationView: View {
                 
                 Spacer()
                 
-                if let currentLocation = locationManager.currentLocation, let _ = locationManager.path {
+                if let currentLocation = locationManager.currentLocation {
                     
                     //Text("\(calculateBearing(from: locationManager.currentLocation!, to: path.first!))°")
                     
 //                    LocationMarkerView(isArrived: locationManager.isArrived, headingDifference: locationManager.headingDifference)
                     
-                    Image(systemName: locationManager.isArrived ? "mappin.circle" : "location.fill")
-                        .resizable()
-                        .frame(width: 100, height: 100)
-                        .foregroundColor(locationManager.isArrived ? .green : .black)
-                        .rotationEffect(
-                            locationManager.isArrived ? .zero : .radians((locationManager.headingDifference ?? 0) + CGFloat.pi / 2)
-                        )
-                        .animation(.easeInOut(duration: 0.5), value: locationManager.headingDifference ?? 0)
-                        .padding()
+                    if locationManager.originalPath != nil || locationManager.isArrived {
+                        Image(systemName: locationManager.isArrived ? "mappin.and.ellipse.circle" : "location.fill")
+                            .resizable()
+                            .frame(width: 100, height: 100)
+                            .foregroundColor(locationManager.isArrived ? .green : .black)
+                            .rotationEffect(
+                                locationManager.isArrived ? .zero : .radians((locationManager.headingDifference ?? .zero) + CGFloat.pi / 2))
+//                            .animation(.default, value: locationManager.headingDifference ?? .zero)
+//                            .animation(.easeOut, value: (locationManager.headingDifference  ?? .zero) + CGFloat.pi / 2 )
+                            .padding()
+                        if let nextPoint = locationManager.nextPoint {
+                            Text(String(format: "Next Point: [%.2f, %.2f]", nextPoint.x, nextPoint.y))
+                        }
+                    }
 
                     
-                    Text(String(format: "[%.2f, %.2f]", currentLocation.x, currentLocation.y))
+                    Text(String(format: "[%.2f, %.2f], heading: %.2f", currentLocation.x, currentLocation.y, currentLocation.heading))
                         .bold()
                         .font(.title3)
                     
-                    Button("Recenter", systemImage: "location.viewfinder") {
-                        locationManager.centerToUserPosition()
+                    
+                    if locationManager.isArrived {
+                        Text("Arrived at destination")
+                            .bold()
+                    } else {
+                        Button("Recenter", systemImage: "location.viewfinder") {
+                            locationManager.centerToUserPosition()
+                        }
+                        .buttonStyle(.bordered)
                     }
-                    .buttonStyle(.bordered)
                     
                     VStack(alignment: .leading) {
 //                        Text("Heading to origin: \(currentLocation.heading, specifier: "%.2f") radians")
@@ -60,13 +71,6 @@ struct ARIndoorNavigationView: View {
                     }
                     .padding()
                     
-                } else if locationManager.currentLocation != nil {
-                    Button("Recenter", systemImage: "location.viewfinder") {
-                        locationManager.centerToUserPosition()
-                    }
-                    .buttonStyle(.bordered)
-                    Text("Press start for indoor navigation")
-                        .bold()
                 } else {
                     Image(systemName: "qrcode.viewfinder")
                         .resizable()
@@ -105,3 +109,10 @@ struct ARIndoorNavigationView: View {
     }
 }
 
+
+
+//                        Text("Heading to origin: \(currentLocation.heading, specifier: "%.2f") radians")
+//                        Text("Heading Difference: \(locationManager.headingDifference!, specifier: "%.2f") radians")
+//                        Text("Proximity: \(locationManager.proximity, specifier: "%.2f")")
+//                        Text("Building: \(locationManager.currentBuilding ?? "N/A")")
+//                        Text("Floor: \(locationManager.currentFloor ?? "N/A")")

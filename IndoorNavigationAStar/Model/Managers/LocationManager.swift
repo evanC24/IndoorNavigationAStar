@@ -11,13 +11,16 @@ import CoreLocation
 import UIKit
 import PositioningLibrary
 import RealityKit
+import IndoorNavigation
 
 class LocationManager: ObservableObject, LocationObserver {
     
     @Published var headingDifference: CGFloat?
-    @Published var proximity: Float?
+    @Published var distance: Float?
     @Published var currentBuilding: String?
     @Published var currentFloor: String?
+    @Published var nextPoint: Point?
+//    @Published var adjustedHeading: CGFloat = 0
     
 // camera ivan
 //    @Published var width: Float = 2.9
@@ -38,11 +41,14 @@ class LocationManager: ObservableObject, LocationObserver {
 //    @Published var endLocation: Point = Point(x: 5, y: 2.75 - 0.56 )
     @Published var endLocation: Point = Point( x: 5.285, y: 3.73 )
     
-    @Published var path: [Point]?
+    @Published var originalPath: [Point]?
+    @Published var pathToVisit: [Point]?
     @Published var isArrived: Bool = false
 
     private var anchorEntities: [AnchorEntity] = []
     private var endAnchorEntity: AnchorEntity?
+    
+    private var map: Map?
     
     func startLocationUpdates(arView: ARView) {
         let myMarkers = loadDynamicData()
@@ -60,18 +66,44 @@ class LocationManager: ObservableObject, LocationObserver {
         self.arView = arView
         self.locationProvider.showFloorMap(floorMapRect)
         self.locationProvider.start()
+        self.locationProvider.startFollowUser()
+        
+        var obstacles: [any Obstacle] = []
+        
+        // IVAN camera
+//        var bedObstacles: Obstacle = Obstacle(topLeft: Point(x: 0, y: 1.4), bottomRight: Point(x: 2.2, y: 2.5))
+//        obstacles.append(contentsOf: bedObstacles.points)
+//        var deskObstacles: Obstacle = Obstacle(topLeft: Point(x: width - 1.41, y: 0), bottomRight: Point(x: width, y: 0.66))
+//        obstacles.append(contentsOf: deskObstacles.points)
+        
+        // IVAN veranda
+        let table1: Table = Table(topLeft: Point(x: 1.03, y: 0), bottomRight: Point(x: 1.03+0.94, y: 1.70))
+        let table2: Table = Table(topLeft: Point(x: 2.74, y: 1.10), bottomRight: Point(x: 2.74+0.94, y: 7.69))
+        let wallMadeOfChairs: Wall = Wall(topLeft: Point(x: 2.74+0.94, y: 1.10), bottomRight: Point(x: width - 2, y: 1.10+0.60))
+        let sink: RectangleObstacle = RectangleObstacle(topLeft: Point(x: 0, y: 2.88), bottomRight: Point(x: 2.74, y: height))
+        obstacles.append(table1)
+        obstacles.append(table2)
+        obstacles.append(wallMadeOfChairs)
+        obstacles.append(sink)
+        
+
+        // REBECCA
+        //        var bedOstacle: Obstacle = Obstacle(topLeft: Point(x: height, y: width - 0.56), bottomRight: Point(x: height - 1.32, y: width))
+        
+        self.map = Map(width: width, height: height, obstacles: obstacles, shortestPathFactor: 0.8)
     }
     
     
     func onLocationUpdate(_ newLocation: ApproxLocation) {
-        locationProvider.centerToUserPosition()
         self.currentLocation = Point(
             x: Float(newLocation.coordinates.x),
             y: Float(newLocation.coordinates.y),
             heading: newLocation.heading
         )
         
-        if let path = self.path, path.count > 0 {
+        isArrived = euclideanDistance(from: currentLocation!, to: endLocation) < 1
+        
+        if let path = self.originalPath, !path.isEmpty/*, let pathToVisit = self.pathToVisit, !pathToVisit.isEmpty */{
 //                var pathPoints: [Point] = []
 //                for (i, pathPoint) in path.enumerated() {
 //                    if i % 10 == 0 || i == path.count - 1 {
@@ -81,42 +113,32 @@ class LocationManager: ObservableObject, LocationObserver {
 //                }
 //                guideUser(from: currentLocation!, to: pathPoints.first!)
 //
-            guideUser(from: currentLocation!, to: path.first!)
-        } else {
-            guideUser(from: currentLocation!, to: endLocation )
+            if let nextPoint = findClosestPathPoint(path: path, from: currentLocation!) {
+                self.nextPoint = nextPoint
+//                let startIndexPathToVisit = path.firstIndex(of: nextPoint)
+//                self.pathToVisit = Array(path[startIndexPathToVisit!...])
+                guideUser(from: currentLocation!, to: nextPoint)
+            }
         }
+        /*else {*/
+//            guideUser(from: currentLocation!, to: endLocation )
+//        }
     }
+    
+    
+
     
     func createPath() {
         guard let currentLocation else { return }
         guard let arView else { return  }
+        guard let map else { return }
         
-        var obstacles: [Obstacle] = []
-        
-        // IVAN camera
-//        var bedObstacles: Obstacle = Obstacle(topLeft: Point(x: 0, y: 1.4), bottomRight: Point(x: 2.2, y: 2.5))
-//        obstacles.append(contentsOf: bedObstacles.points)
-//        var deskObstacles: Obstacle = Obstacle(topLeft: Point(x: width - 1.41, y: 0), bottomRight: Point(x: width, y: 0.66))
-//        obstacles.append(contentsOf: deskObstacles.points)
-        
-        // IVAN veranda
-        var table1: Obstacle = Obstacle(topLeft: Point(x: 1.03, y: 0), bottomRight: Point(x: 1.03+0.94, y: 1.70))
-        var table2: Obstacle = Obstacle(topLeft: Point(x: 2.74, y: 1.10), bottomRight: Point(x: 2.74+0.94, y: 7.69))
-        var chairs: Obstacle = Obstacle(topLeft: Point(x: 2.74+0.94, y: 1.10), bottomRight: Point(x: width - 2, y: 1.10+0.60))
-        obstacles.append(table1)
-        obstacles.append(table2)
-        obstacles.append(chairs)
-        
-
-        // REBECCA
-        //        var bedOstacle: Obstacle = Obstacle(topLeft: Point(x: height, y: width - 0.56), bottomRight: Point(x: height - 1.32, y: width))
-        
-        let map = Map(width: width, height: height, obstacles: obstacles)
-        
-        path = map.findPath( start: currentLocation,
+        resetPath(arView: arView)
+        self.originalPath = map.findPath( start: currentLocation,
                              goal: endLocation)
+//        self.pathToVisit = originalPath
         
-        addDestinationAnchorToARView(arView: arView, goalPoint: endLocation)
+//        addDestinationAnchorToARView(arView: arView, goalPoint: endLocation)
 //        addPoints()
         
     }
@@ -125,10 +147,10 @@ class LocationManager: ObservableObject, LocationObserver {
         guard let currentLocation else { return }
         guard let arView else { return  }
         
-        if let path = self.path {
+        if let path = self.originalPath {
             var pointsToRender: [Point] = []
             for (i, pathPoint) in path.enumerated() {
-                if i % 10 == 0 || i == path.count - 1 {
+                if i % 30 == 0 || i == path.count - 1 {
                     print("#\(i): (\(pathPoint.x),\(pathPoint.y))")
                     pointsToRender.append(pathPoint)
                 }
@@ -144,8 +166,8 @@ class LocationManager: ObservableObject, LocationObserver {
     
     func resetPath(arView: ARView) {
         removeAllAnchors(arView: arView)
-        self.path = nil
-        print(path ?? "vuoto")
+        self.originalPath = []
+        print(originalPath ?? "vuoto")
     }
     
     func onBuildingChanged(_ newBuilding: Building) {
@@ -158,26 +180,88 @@ class LocationManager: ObservableObject, LocationObserver {
         print("Floor changed: \(newFloor.number)")
     }
     
-    
-    private func guideUser(from currentLocation: Point, to goalLocation: Point) {
-        let bearingToGoal = calculateBearing(from: currentLocation, to: goalLocation)
-        let headingDiff = bearingToGoal + currentLocation.heading
+    private func guideUser(from currentLocation: Point, to nextPoint: Point) {
+        guard let map = self.map else { return }
+
+//        // Check if nextPoint is inside an obstacle
+//        if map.obstacles.contains(where: { $0.contains(point: nextPoint)}) {
+//            
+//            // Find the closest edge point on the obstacle to nextPoint
+//            if let closestEdgePoint = map.obstacles.compactMap({ $0.getClosestEdgePoint(of: nextPoint)})
+//                .min(by: { euclideanDistance(from: $0, to: nextPoint) < euclideanDistance(from: $1, to: nextPoint) }) {
+//                
+//                // Calculate a new point that is slightly outside the obstacle
+//                let offsetDistance: Float = 0.3 // Adjust this distance as needed
+//                let directionVector = normalizeVector(from: closestEdgePoint, to: nextPoint)
+//                let adjustedPoint = Point(
+//                    x: closestEdgePoint.x + directionVector.x * offsetDistance,
+//                    y: closestEdgePoint.y + directionVector.y * offsetDistance
+//                )
+//                
+//                // Now use the adjusted point instead of the original nextPoint
+//                navigateTo(adjustedPoint)
+//            }
+//        } else {
+//            // Use the next point directly if it's not in an obstacle
+//            navigateTo(nextPoint)
+//        }
+        navigateTo(nextPoint)
+    }
+
+    // Function to normalize a vector between two points
+    private func normalizeVector(from start: Point, to end: Point) -> Point {
+        let dx = end.x - start.x
+        let dy = end.y - start.y
+        let length = sqrt(dx * dx + dy * dy)
+        return Point(x: dx / length, y: dy / length)
+    }
+
+    // A placeholder for the actual navigation logic
+    private func navigateTo(_ point: Point) {
+        let bearingToGoal = calculateBearing(from: currentLocation!, to: point)
+        let headingDiff = bearingToGoal + currentLocation!.heading
         let normalizedHeadingDiff = normalizeAngleToPi(headingDiff)
         
-        self.headingDifference = CGFloat(normalizedHeadingDiff)
-        self.proximity = calculateProximity(from: currentLocation, to: goalLocation)
+        headingDifference = CGFloat(normalizedHeadingDiff)
+        distance = euclideanDistance(from: currentLocation!, to: point)
         
-        // If user is close enough to the goal location, move to the next path point
-        if calculateProximity(from: currentLocation, to: endLocation) < 0.5 {
-            isArrived = true
-            return
-        } else if goalLocation != endLocation && proximity! < 0.5 {
-            print("Removed: \(String(describing: self.path?.first!))")
-            self.path?.removeFirst()
-            print("Path size: \(String(describing: self.path?.count))")
+        if point != endLocation && distance! <= 0.35 {
+            self.originalPath?.removeFirst()
+//            self.pathToVisit?.removeFirst()
+            print("Removed: \(String(describing: point))")
+            print("Path size: \(String(describing: self.originalPath?.count))")
+//            print("Path size: \(String(describing: self.pathToVisit?.count))")
         }
-        isArrived = false
     }
+
+    
+//    private func guideUser(from currentLocation: Point, to nextPoint: Point) {
+//        guard let map = map else {return}
+//        
+//        if map.obstacles.contains(where: {$0.contains(point: nextPoint)}) {
+//            
+//        }
+//        
+//        // measure heading
+//        let bearingToGoal = calculateBearing(from: currentLocation, to: nextPoint)
+//        let headingDiff = bearingToGoal + currentLocation.heading
+//        let normalizedHeadingDiff = normalizeAngleToPi(headingDiff)
+//        
+//        headingDifference = CGFloat(normalizedHeadingDiff)
+//        distance = euclideanDistance(from: currentLocation, to: nextPoint)
+//        
+////        if euclideanDistance(from: currentLocation, to: endLocation) < 1 { // If user is close enough to the goal location we return
+////            isArrived = true
+////            print("Is arrived: \(String(describing: goalLocation))")
+////            return
+//        /*} else*/ if nextPoint != endLocation && distance! <= 0.3 { // otherwise
+////            print("Removed: \(String(describing: self.path?.first!))")
+//            print("Removed: \(String(describing: nextPoint))")
+//            self.path?.removeFirst()
+//            print("Path size: \(String(describing: self.path?.count))")
+//        }
+////        isArrived = false // if we are not close enough to any path point or destination we are not arrived
+//    }
     
     
     func centerToUserPosition() {
