@@ -1,0 +1,86 @@
+{
+  "floors": [
+    {
+      "floorId": "f1_2",
+      "endLocations": [
+        {
+          "x": 5.285,
+          "y": 3.73,
+          "heading": null,
+          "isWalkable": true,
+          "name": "Porta"
+        }
+      ],
+      "obstacles": [
+        {
+          "type": "RectangleObstacle",
+          "topLeft": {
+            "x": 1.03,
+            "y": 0,
+            "heading": null,
+            "isWalkable": false,
+            "name": null
+          },
+          "bottomRight": {
+            "x": 1.97,
+            "y": 1.70,
+            "heading": null,
+            "isWalkable": false,
+            "name": null
+          }
+        },
+        {
+          "type": "RectangleObstacle",
+          "topLeft": {
+            "x": 2.74,
+            "y": 1.10,
+            "heading": null,
+            "isWalkable": false,
+            "name": null
+          },
+          "bottomRight": {
+            "x": 3.68,
+            "y": 7.69,
+            "heading": null,
+            "isWalkable": false,
+            "name": null
+          }
+        },
+        {
+          "type": "RectangleObstacle",
+          "topLeft": {
+            "x": 3.68,
+            "y": 1.10,
+            "heading": null,
+            "isWalkable": false,
+            "name": null
+          },
+          "bottomRight": {
+            "x": 5.69,
+            "y": 1.70,
+            "heading": null,
+            "isWalkable": false,
+            "name": null
+          }
+        },
+        {
+          "type": "RectangleObstacle",
+          "topLeft": {
+            "x": 0,
+            "y": 2.88,
+            "heading": null,
+            "isWalkable": false,
+            "name": null
+          },
+          "bottomRight": {
+            "x": 2.74,
+            "y": 3.73,
+            "heading": null,
+            "isWalkable": false,
+            "name": null
+          }
+        }
+      ]
+    }
+  ]
+}

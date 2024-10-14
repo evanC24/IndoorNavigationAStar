@@ -15,6 +15,10 @@ import IndoorNavigation
 
 class LocationManager: ObservableObject, LocationObserver {
     
+    @Published var width: Float = 0
+    @Published var height: Float = 0
+    @Published var endLocations: [Point] = []
+    
     @Published var headingDifference: CGFloat?
     @Published var distance: Float?
     @Published var currentBuilding: String?
@@ -30,8 +34,8 @@ class LocationManager: ObservableObject, LocationObserver {
 //    @Published var width: Float = 2.75
 //    @Published var height: Float = 5
     
-    @Published var width: Float = 7.69
-    @Published var height: Float = 3.73
+//    @Published var width: Float = 7.69
+//    @Published var height: Float = 3.73
     
     private var locationProvider: LocationProvider!
     private var arView: ARView?
@@ -39,7 +43,9 @@ class LocationManager: ObservableObject, LocationObserver {
     @Published var currentLocation: Point?
 //    @Published var endLocation: Point = Point(x: 2.9, y: 2.9)
 //    @Published var endLocation: Point = Point(x: 5, y: 2.75 - 0.56 )
-    @Published var endLocation: Point = Point( x: 5.285, y: 3.73 )
+//    @Published var endLocation: Point = Point( x: 5.285, y: 3.73 )
+    @Published var endLocation: Point?
+
     
     @Published var originalPath: [Point]?
     @Published var pathToVisit: [Point]?
@@ -50,9 +56,16 @@ class LocationManager: ObservableObject, LocationObserver {
     
     private var map: Map?
     
+    
+//    
+//    init() {
+//           loadMapData()
+//       }
+    
     func startLocationUpdates(arView: ARView) {
-        let myMarkers = loadDynamicData()
-        self.locationProvider = LocationProvider(arView: arView, markers: myMarkers)
+//        let myMarkers = loadDynamicData()
+//        self.locationProvider = LocationProvider(arView: arView, markers: myMarkers)
+        self.locationProvider = LocationProvider(arView: arView, jsonName: "mapData")
         self.locationProvider.addLocationObserver(locationObserver: self)
         
         let margin: CGFloat = 32
@@ -67,41 +80,20 @@ class LocationManager: ObservableObject, LocationObserver {
         self.locationProvider.showFloorMap(floorMapRect)
         self.locationProvider.start()
         self.locationProvider.startFollowUser()
-        
-        var obstacles: [any Obstacle] = []
-        
-        // IVAN camera
-//        var bedObstacles: Obstacle = Obstacle(topLeft: Point(x: 0, y: 1.4), bottomRight: Point(x: 2.2, y: 2.5))
-//        obstacles.append(contentsOf: bedObstacles.points)
-//        var deskObstacles: Obstacle = Obstacle(topLeft: Point(x: width - 1.41, y: 0), bottomRight: Point(x: width, y: 0.66))
-//        obstacles.append(contentsOf: deskObstacles.points)
-        
-        // IVAN veranda
-        let table1: Table = Table(topLeft: Point(x: 1.03, y: 0), bottomRight: Point(x: 1.03+0.94, y: 1.70))
-        let table2: Table = Table(topLeft: Point(x: 2.74, y: 1.10), bottomRight: Point(x: 2.74+0.94, y: 7.69))
-        let wallMadeOfChairs: Wall = Wall(topLeft: Point(x: 2.74+0.94, y: 1.10), bottomRight: Point(x: width - 2, y: 1.10+0.60))
-        let sink: RectangleObstacle = RectangleObstacle(topLeft: Point(x: 0, y: 2.88), bottomRight: Point(x: 2.74, y: height))
-        obstacles.append(table1)
-        obstacles.append(table2)
-        obstacles.append(wallMadeOfChairs)
-        obstacles.append(sink)
-        
-
-        // REBECCA
-        //        var bedOstacle: Obstacle = Obstacle(topLeft: Point(x: height, y: width - 0.56), bottomRight: Point(x: height - 1.32, y: width))
-        
-        self.map = Map(width: width, height: height, obstacles: obstacles, shortestPathFactor: 0.8)
     }
     
     
     func onLocationUpdate(_ newLocation: ApproxLocation) {
+        
         self.currentLocation = Point(
             x: Float(newLocation.coordinates.x),
             y: Float(newLocation.coordinates.y),
             heading: newLocation.heading
         )
         
-        isArrived = euclideanDistance(from: currentLocation!, to: endLocation) < 1
+        if let endLocation = self.endLocation {
+            isArrived = euclideanDistance(from: currentLocation!, to: endLocation) < 1
+        }
         
         if let path = self.originalPath, !path.isEmpty/*, let pathToVisit = self.pathToVisit, !pathToVisit.isEmpty */{
 //                var pathPoints: [Point] = []
@@ -115,8 +107,8 @@ class LocationManager: ObservableObject, LocationObserver {
 //
             if let nextPoint = findClosestPathPoint(path: path, from: currentLocation!) {
                 self.nextPoint = nextPoint
-//                let startIndexPathToVisit = path.firstIndex(of: nextPoint)
-//                self.pathToVisit = Array(path[startIndexPathToVisit!...])
+                let startIndexPathToVisit = path.firstIndex(of: nextPoint)
+                self.pathToVisit = Array(path[startIndexPathToVisit!...])
                 guideUser(from: currentLocation!, to: nextPoint)
             }
         }
@@ -128,12 +120,13 @@ class LocationManager: ObservableObject, LocationObserver {
     
 
     
-    func createPath() {
+    func createPath(to endLocation: Point) {
         guard let currentLocation else { return }
         guard let arView else { return  }
         guard let map else { return }
         
         resetPath(arView: arView)
+        self.endLocation = endLocation
         self.originalPath = map.findPath( start: currentLocation,
                              goal: endLocation)
 //        self.pathToVisit = originalPath
@@ -143,42 +136,59 @@ class LocationManager: ObservableObject, LocationObserver {
         
     }
     
-    func addPoints() {
-        guard let currentLocation else { return }
-        guard let arView else { return  }
-        
-        if let path = self.originalPath {
-            var pointsToRender: [Point] = []
-            for (i, pathPoint) in path.enumerated() {
-                if i % 30 == 0 || i == path.count - 1 {
-                    print("#\(i): (\(pathPoint.x),\(pathPoint.y))")
-                    pointsToRender.append(pathPoint)
-                }
-            }
-            
-            removeAllAnchors(arView: arView)
-            addPointsToARViewWithGradient(arView: arView, points: pointsToRender, startPoint: currentLocation, goalPoint: endLocation)
-            
-            //        guideUserToGoal(currentLocation: currentLocation, goalLocation: self.goalLocation)
-            //            guideUserToGoal(currentLocation: currentLocation, goalLocation: path.first!)
-        }
-    }
+//    func addPoints() {
+//        guard let currentLocation else { return }
+//        guard let arView else { return  }
+//        
+//        if let path = self.originalPath {
+//            var pointsToRender: [Point] = []
+//            for (i, pathPoint) in path.enumerated() {
+//                if i % 30 == 0 || i == path.count - 1 {
+//                    print("#\(i): (\(pathPoint.x),\(pathPoint.y))")
+//                    pointsToRender.append(pathPoint)
+//                }
+//            }
+//            
+//            removeAllAnchors(arView: arView)
+//            addPointsToARViewWithGradient(arView: arView, points: pointsToRender, startPoint: currentLocation, goalPoint: endLocation)
+//            
+//            //        guideUserToGoal(currentLocation: currentLocation, goalLocation: self.goalLocation)
+//            //            guideUserToGoal(currentLocation: currentLocation, goalLocation: path.first!)
+//        }
+//    }
     
     func resetPath(arView: ARView) {
         removeAllAnchors(arView: arView)
-        self.originalPath = []
+        self.originalPath = nil
+        self.pathToVisit = nil
         print(originalPath ?? "vuoto")
     }
     
-    func onBuildingChanged(_ newBuilding: Building) {
+    func onBuildingChanged(_ newBuilding: PositioningLibrary.Building) {
         currentBuilding = newBuilding.name
         print("Building changed: \(newBuilding.name)")
     }
     
-    func onFloorChanged(_ newFloor: Floor) {
+    func onFloorChanged(_ newFloor: PositioningLibrary.Floor) {
         currentFloor = "\(newFloor.number)°"
         print("Floor changed: \(newFloor.number)")
+        
+        if let floorData = loadFloorData(from: "navigationData", for: "f1_2")  {
+            self.endLocations = floorData.endLocations
+            self.endLocation = floorData.endLocations.first
+            let obstacles = floorData.obstacles
+            
+            // Process endLocations and obstacles as needed
+            print("End Locations: \(endLocations)")
+            print("Obstacles: \(obstacles)")
+            
+            self.map = Map(width: newFloor.maxWidth, height: newFloor.maxHeight, obstacles: obstacles, shortestPathFactor: 0.8)
+        } else {
+            print("Failed to retrieve floor data.")
+        }
     }
+    
+
     
     private func guideUser(from currentLocation: Point, to nextPoint: Point) {
         guard let map = self.map else { return }
@@ -227,7 +237,7 @@ class LocationManager: ObservableObject, LocationObserver {
         
         if point != endLocation && distance! <= 0.35 {
             self.originalPath?.removeFirst()
-//            self.pathToVisit?.removeFirst()
+            self.pathToVisit?.removeFirst()
             print("Removed: \(String(describing: point))")
             print("Path size: \(String(describing: self.originalPath?.count))")
 //            print("Path size: \(String(describing: self.pathToVisit?.count))")

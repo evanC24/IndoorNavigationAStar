@@ -31,7 +31,7 @@ struct ARIndoorNavigationView: View {
                     
 //                    LocationMarkerView(isArrived: locationManager.isArrived, headingDifference: locationManager.headingDifference)
                     
-                    if locationManager.originalPath != nil || locationManager.isArrived {
+                    if locationManager.pathToVisit != nil && !locationManager.pathToVisit!.isEmpty || locationManager.isArrived {
                         Image(systemName: locationManager.isArrived ? "mappin.and.ellipse.circle" : "location.fill")
                             .resizable()
                             .frame(width: 100, height: 100)
@@ -91,8 +91,14 @@ struct ARIndoorNavigationView: View {
                     .controlSize(.large)
                     .disabled(locationManager.currentLocation == nil || locationManager.isArrived)
                     
-                    Button("Start", systemImage: "figure.walk.departure") {
-                        locationManager.createPath()
+                    Menu {
+                        ForEach(locationManager.endLocations, id: \.self) { endLocation in
+                            Button(endLocation.name ?? "Point located at (\(endLocation.x),\(endLocation.y))") {
+                                locationManager.createPath(to: endLocation)
+                            }
+                        }
+                    } label: {
+                        Label("Start", systemImage: "figure.walk.departure")
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
