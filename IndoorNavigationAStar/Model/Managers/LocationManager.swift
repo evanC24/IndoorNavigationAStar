@@ -173,7 +173,7 @@ class LocationManager: ObservableObject, LocationObserver {
         currentFloor = "\(newFloor.number)°"
         print("Floor changed: \(newFloor.number)")
         
-        if let floorData = loadFloorData(from: "navigationData", for: "f1_2")  {
+        if let floorData = loadFloorData(from: "navigationData", for: newFloor.id)  {
             self.endLocations = floorData.endLocations
             self.endLocation = floorData.endLocations.first
             let obstacles = floorData.obstacles
