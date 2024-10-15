@@ -11,9 +11,18 @@ import RealityKit
 import SwiftUI
 import RealityKit
 
+import IndoorNavigation
+
 struct ARIndoorNavigationView: View {
+    
     @StateObject private var locationManager = LocationManager()
     @State private var arView = ARView()
+    
+    var disableButton: Bool {
+        return locationManager.currentLocation == nil || locationManager.isArrived
+    }
+    
+    @State var showAlert: Bool = false
     
     var body: some View {
         ZStack {
@@ -22,6 +31,19 @@ struct ARIndoorNavigationView: View {
                 .edgesIgnoringSafeArea(.all)
             
             VStack {
+                
+                if let map = locationManager.map {
+                    MapView(
+                        pathPoints: locationManager.originalPath ?? [],
+                        endLocation: locationManager.endLocation,
+                        currentLocation: locationManager.currentLocation,
+                        obstacles: map.obstacles,
+                        maxWidth: CGFloat(map.width),
+                        maxHeight: CGFloat(map.height),
+                        viewWidth: 200,
+                        viewHeight: 200
+                    )
+                }
                 
                 Spacer()
                 
@@ -37,7 +59,10 @@ struct ARIndoorNavigationView: View {
                             .frame(width: 100, height: 100)
                             .foregroundColor(locationManager.isArrived ? .green : .black)
                             .rotationEffect(
-                                locationManager.isArrived ? .zero : .radians((locationManager.headingDifference ?? .zero) + CGFloat.pi / 2))
+                                locationManager.isArrived ?
+                                    .zero :
+                                    .radians((locationManager.headingDifference ?? .zero) + CGFloat.pi / 2)
+                            )
 //                            .animation(.default, value: locationManager.headingDifference ?? .zero)
 //                            .animation(.easeOut, value: (locationManager.headingDifference  ?? .zero) + CGFloat.pi / 2 )
                             .padding()
@@ -89,7 +114,7 @@ struct ARIndoorNavigationView: View {
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.large)
-                    .disabled(locationManager.currentLocation == nil || locationManager.isArrived)
+                    .disabled(self.disableButton)
                     
                     Menu {
                         ForEach(locationManager.endLocations, id: \.self) { endLocation in
@@ -102,7 +127,7 @@ struct ARIndoorNavigationView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
-                    .disabled(locationManager.currentLocation == nil || locationManager.isArrived)
+                    .disabled(self.disableButton)
                 }
                 
             }

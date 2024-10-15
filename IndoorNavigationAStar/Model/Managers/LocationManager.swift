@@ -54,7 +54,7 @@ class LocationManager: ObservableObject, LocationObserver {
     private var anchorEntities: [AnchorEntity] = []
     private var endAnchorEntity: AnchorEntity?
     
-    private var map: Map?
+    @Published var map: Map?
     
     
 //    
@@ -77,9 +77,9 @@ class LocationManager: ObservableObject, LocationObserver {
         )
         
         self.arView = arView
-        self.locationProvider.showFloorMap(floorMapRect)
+//        self.locationProvider.showFloorMap(floorMapRect)
         self.locationProvider.start()
-        self.locationProvider.startFollowUser()
+//        self.locationProvider.startFollowUser()
     }
     
     
@@ -173,19 +173,16 @@ class LocationManager: ObservableObject, LocationObserver {
         currentFloor = "\(newFloor.number)°"
         print("Floor changed: \(newFloor.number)")
         
-        if let floorData = loadFloorData(from: "navigationData", for: newFloor.id)  {
-            self.endLocations = floorData.endLocations
-            self.endLocation = floorData.endLocations.first
-            let obstacles = floorData.obstacles
-            
-            // Process endLocations and obstacles as needed
-            print("End Locations: \(endLocations)")
-            print("Obstacles: \(obstacles)")
-            
-            self.map = Map(width: newFloor.maxWidth, height: newFloor.maxHeight, obstacles: obstacles, shortestPathFactor: 0.8)
-        } else {
-            print("Failed to retrieve floor data.")
-        }
+        let floorData = loadFloorData(from: "navigationData", for: newFloor.id)
+        self.endLocations = floorData.endLocations
+        self.endLocation = floorData.endLocations.first
+        let obstacles = floorData.obstacles
+        
+        // Process endLocations and obstacles as needed
+        print("End Locations: \(endLocations)")
+        print("Obstacles: \(obstacles)")
+        
+        self.map = Map(width: newFloor.maxWidth, height: newFloor.maxHeight, obstacles: obstacles, shortestPathFactor: 0)
     }
     
 
