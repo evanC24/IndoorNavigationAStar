@@ -179,7 +179,7 @@ class LocationManager: ObservableObject, LocationObserver {
         
         let floorData = loadFloorData(from: "navigationData", for: newFloor.id)
         self.endLocations = floorData.endLocations
-        self.endLocation = floorData.endLocations.first
+//        self.endLocation = floorData.endLocations.first
         let obstacles = floorData.obstacles
         
         // Process endLocations and obstacles as needed

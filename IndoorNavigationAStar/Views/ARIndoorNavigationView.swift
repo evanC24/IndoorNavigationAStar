@@ -19,7 +19,7 @@ struct ARIndoorNavigationView: View {
     @State private var arView = ARView()
     
     var disableButton: Bool {
-        return locationManager.currentLocation == nil || locationManager.isArrived
+        return locationManager.currentLocation == nil
     }
     
     @State var showAlert: Bool = false
