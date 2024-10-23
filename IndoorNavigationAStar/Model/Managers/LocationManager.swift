@@ -186,7 +186,7 @@ class LocationManager: ObservableObject, LocationObserver {
         print("End Locations: \(endLocations)")
         print("Obstacles: \(obstacles)")
         
-        self.map = Map(width: newFloor.maxWidth, height: newFloor.maxHeight, obstacles: obstacles, shortestPathFactor: 0.7)
+        self.map = Map(width: newFloor.maxWidth, height: newFloor.maxHeight, obstacles: obstacles /* shortestPathFactor: 0.7*/)
     }
     
 
