@@ -97,7 +97,7 @@ struct ARIndoorNavigationView: View {
                     .padding()
                     
                 } else {
-                    Image(systemName: "qrcode.viewfinder")
+                    Image(systemName: "camera.viewfinder")
                         .resizable()
                         .frame(width: 100, height: 100)
                     
