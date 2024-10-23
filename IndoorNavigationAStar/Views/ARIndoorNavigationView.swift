@@ -53,7 +53,7 @@ struct ARIndoorNavigationView: View {
                     
 //                    LocationMarkerView(isArrived: locationManager.isArrived, headingDifference: locationManager.headingDifference)
                     
-                    if locationManager.pathToVisit != nil && !locationManager.pathToVisit!.isEmpty || locationManager.isArrived {
+                    if locationManager.originalPath != nil && !locationManager.originalPath!.isEmpty || locationManager.isArrived {
                         Image(systemName: locationManager.isArrived ? "mappin.and.ellipse.circle" : "location.fill")
                             .resizable()
                             .frame(width: 100, height: 100)

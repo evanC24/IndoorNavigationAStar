@@ -24,6 +24,9 @@ class LocationManager: ObservableObject, LocationObserver {
     @Published var currentBuilding: String?
     @Published var currentFloor: String?
     @Published var nextPoint: Point?
+    
+    let ACCEPTED_DISTANCE: Float = 0.40
+    
 //    @Published var adjustedHeading: CGFloat = 0
     
 // camera ivan
@@ -95,7 +98,7 @@ class LocationManager: ObservableObject, LocationObserver {
             isArrived = euclideanDistance(from: currentLocation!, to: endLocation) < 1
         }
         
-        if let path = self.originalPath, !path.isEmpty/*, let pathToVisit = self.pathToVisit, !pathToVisit.isEmpty */{
+        if let path = self.originalPath, !path.isEmpty /*let pathToVisit = self.pathToVisit, !pathToVisit.isEmpty*/ {
 //                var pathPoints: [Point] = []
 //                for (i, pathPoint) in path.enumerated() {
 //                    if i % 10 == 0 || i == path.count - 1 {
@@ -105,7 +108,8 @@ class LocationManager: ObservableObject, LocationObserver {
 //                }
 //                guideUser(from: currentLocation!, to: pathPoints.first!)
 //
-            if let nextPoint = findClosestPathPoint(path: path, from: currentLocation!) {
+//            if let nextPoint = findClosestPathPoint(path: path, from: currentLocation!) {
+            if let nextPoint = findClosestPathPoint(path: pathToVisit ?? [], from: currentLocation!) {
                 self.nextPoint = nextPoint
                 let startIndexPathToVisit = path.firstIndex(of: nextPoint)
                 self.pathToVisit = Array(path[startIndexPathToVisit!...])
@@ -129,7 +133,7 @@ class LocationManager: ObservableObject, LocationObserver {
         self.endLocation = endLocation
         self.originalPath = map.findPath( start: currentLocation,
                              goal: endLocation)
-//        self.pathToVisit = originalPath
+        self.pathToVisit = originalPath
         
 //        addDestinationAnchorToARView(arView: arView, goalPoint: endLocation)
 //        addPoints()
@@ -182,7 +186,7 @@ class LocationManager: ObservableObject, LocationObserver {
         print("End Locations: \(endLocations)")
         print("Obstacles: \(obstacles)")
         
-        self.map = Map(width: newFloor.maxWidth, height: newFloor.maxHeight, obstacles: obstacles, shortestPathFactor: 0)
+        self.map = Map(width: newFloor.maxWidth, height: newFloor.maxHeight, obstacles: obstacles, shortestPathFactor: 0.7)
     }
     
 
@@ -232,8 +236,8 @@ class LocationManager: ObservableObject, LocationObserver {
         headingDifference = CGFloat(normalizedHeadingDiff)
         distance = euclideanDistance(from: currentLocation!, to: point)
         
-        if point != endLocation && distance! <= 0.35 {
-            self.originalPath?.removeFirst()
+        if point != endLocation && distance! <= ACCEPTED_DISTANCE {
+//            self.originalPath?.removeFirst()
             self.pathToVisit?.removeFirst()
             print("Removed: \(String(describing: point))")
             print("Path size: \(String(describing: self.originalPath?.count))")
