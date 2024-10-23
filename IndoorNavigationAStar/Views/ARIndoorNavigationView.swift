@@ -22,7 +22,7 @@ struct ARIndoorNavigationView: View {
         return locationManager.currentLocation == nil
     }
     
-    @State var showAlert: Bool = false
+    @State private var bouncingValue = 0.8
     
     var body: some View {
         ZStack {
@@ -47,55 +47,58 @@ struct ARIndoorNavigationView: View {
                 
                 Spacer()
                 
-                if let currentLocation = locationManager.currentLocation {
+                if locationManager.currentLocation != nil {
                     
-                    //Text("\(calculateBearing(from: locationManager.currentLocation!, to: path.first!))°")
-                    
-//                    LocationMarkerView(isArrived: locationManager.isArrived, headingDifference: locationManager.headingDifference)
-                    
-                    if locationManager.originalPath != nil && !locationManager.originalPath!.isEmpty || locationManager.isArrived {
-                        Image(systemName: locationManager.isArrived ? "mappin.and.ellipse.circle" : "location.fill")
-                            .resizable()
-                            .frame(width: 100, height: 100)
-                            .foregroundColor(locationManager.isArrived ? .green : .black)
-                            .rotationEffect(
-                                locationManager.isArrived ?
-                                    .zero :
-                                    .radians((locationManager.headingDifference ?? .zero) + CGFloat.pi / 2)
-                            )
-//                            .animation(.default, value: locationManager.headingDifference ?? .zero)
-//                            .animation(.easeOut, value: (locationManager.headingDifference  ?? .zero) + CGFloat.pi / 2 )
-                            .padding()
-                        if let nextPoint = locationManager.nextPoint {
-                            Text(String(format: "Next Point: [%.2f, %.2f]", nextPoint.x, nextPoint.y))
+                    if locationManager.originalPath != nil && !locationManager.originalPath!.isEmpty {
+                        if locationManager.isArrived {
+                            Image(systemName: "flag.checkered.circle" )
+                                .resizable()
+                                .frame(width: 100, height: 100)
+                                .foregroundColor(.green)
+                                .rotationEffect(.zero)
+    //                            .animation(.default, value: locationManager.headingDifference ?? .zero)
+    //                            .animation(.easeOut, value: (locationManager.headingDifference  ?? .zero) )
+                                .padding()
+                            Text(locationManager.isArrived ? "Destination arrived" : "")
+                                .font(.title2)
+                                .bold()
+                        } else {
+                            if let headingDifference = locationManager.headingDifference {
+                                Image(systemName: "location.fill")
+                                    .resizable()
+                                    .frame(width: 100, height: 100)
+                                    .foregroundColor(.black)
+                                    .rotationEffect(
+                                        .radians(headingDifference + CGFloat.pi / 4)
+                                    )
+        //                            .animation(.default, value: locationManager.headingDifference ?? .zero)
+        //                            .animation(.easeOut, value: (locationManager.headingDifference  ?? .zero) )
+                                    .padding()
+                                DirectionHint(headingDifference: headingDifference)
+                                    .padding()
+                            }
                         }
-                    }
 
-                    
-                    Text(String(format: "[%.2f, %.2f], heading: %.2f", currentLocation.x, currentLocation.y, currentLocation.heading))
-                        .bold()
-                        .font(.title3)
-                    
-                    
-                    if locationManager.isArrived {
-                        Text("Arrived at destination")
-                            .bold()
-                    } else {
-                        Button("Recenter", systemImage: "location.viewfinder") {
-                            locationManager.centerToUserPosition()
-                        }
-                        .buttonStyle(.bordered)
+//                        if let nextPoint = locationManager.nextPoint {
+//                            Text(String(format: "Next Point: [%.2f, %.2f]", nextPoint.x, nextPoint.y))
+//                        }
                     }
                     
-                    VStack(alignment: .leading) {
-//                        Text("Heading to origin: \(currentLocation.heading, specifier: "%.2f") radians")
-//                        Text("Heading Difference: \(locationManager.headingDifference!, specifier: "%.2f") radians")
-//                        Text("Proximity: \(locationManager.proximity, specifier: "%.2f")")
-//                        Text("Building: \(locationManager.currentBuilding ?? "N/A")")
-//                        Text("Floor: \(locationManager.currentFloor ?? "N/A")")
-                    }
-                    .padding()
-                    
+//                    if locationManager.isArrived {
+//                        VStack {
+//                            Image(systemName: "flag.checkered.circle")
+//                                .resizable()
+//                                .frame(width: 100, height: 100)
+//                                .foregroundColor(.green)
+//                                .scaleEffect(bouncingValue)
+//                                .animation(.spring(duration: 2, bounce: 1), value: bouncingValue)
+//                                .padding()
+//                            Text("Destination arrived")
+//                                .font(.title2)
+//                                .bold()
+//                        }
+//                        Spacer()
+//                    }
                 } else {
                     Image(systemName: "camera.viewfinder")
                         .resizable()
@@ -105,7 +108,6 @@ struct ARIndoorNavigationView: View {
                         .bold()
                     Spacer()
                 }
-                
                 
                 HStack(alignment: .center) {
                     

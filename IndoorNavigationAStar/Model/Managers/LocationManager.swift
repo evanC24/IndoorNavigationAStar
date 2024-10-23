@@ -25,7 +25,7 @@ class LocationManager: ObservableObject, LocationObserver {
     @Published var currentFloor: String?
     @Published var nextPoint: Point?
     
-    let ACCEPTED_DISTANCE: Float = 0.40
+    let ACCEPTED_DISTANCE: Float = 0.10
     
 //    @Published var adjustedHeading: CGFloat = 0
     
@@ -96,6 +96,8 @@ class LocationManager: ObservableObject, LocationObserver {
         
         if let endLocation = self.endLocation {
             isArrived = euclideanDistance(from: currentLocation!, to: endLocation) < 1
+        } else {
+            isArrived = false
         }
         
         if let path = self.originalPath, !path.isEmpty /*let pathToVisit = self.pathToVisit, !pathToVisit.isEmpty*/ {
@@ -109,11 +111,12 @@ class LocationManager: ObservableObject, LocationObserver {
 //                guideUser(from: currentLocation!, to: pathPoints.first!)
 //
 //            if let nextPoint = findClosestPathPoint(path: path, from: currentLocation!) {
-            if let nextPoint = findClosestPathPoint(path: pathToVisit ?? [], from: currentLocation!) {
-                self.nextPoint = nextPoint
-                let startIndexPathToVisit = path.firstIndex(of: nextPoint)
+            if let closestPathPoint = findClosestPathPoint(path: pathToVisit ?? [], from: currentLocation!) {
+                self.nextPoint = closestPathPoint
+                let startIndexPathToVisit = path.firstIndex(of: closestPathPoint)
                 self.pathToVisit = Array(path[startIndexPathToVisit!...])
-                guideUser(from: currentLocation!, to: nextPoint)
+//                guideUser(from: currentLocation!, to: nextPoint)
+                guideUser(from: closestPathPoint, to: path[startIndexPathToVisit!+1])
             }
         }
         /*else {*/
@@ -163,9 +166,9 @@ class LocationManager: ObservableObject, LocationObserver {
     
     func resetPath(arView: ARView) {
         removeAllAnchors(arView: arView)
+        self.endLocation = nil
         self.originalPath = nil
         self.pathToVisit = nil
-        print(originalPath ?? "vuoto")
     }
     
     func onBuildingChanged(_ newBuilding: PositioningLibrary.Building) {
@@ -191,7 +194,7 @@ class LocationManager: ObservableObject, LocationObserver {
     
 
     
-    private func guideUser(from currentLocation: Point, to nextPoint: Point) {
+    private func guideUser(from start: Point, to end: Point) {
         guard let map = self.map else { return }
 
 //        // Check if nextPoint is inside an obstacle
@@ -216,7 +219,7 @@ class LocationManager: ObservableObject, LocationObserver {
 //            // Use the next point directly if it's not in an obstacle
 //            navigateTo(nextPoint)
 //        }
-        navigateTo(nextPoint)
+        navigateTo(from: start, to: end)
     }
 
     // Function to normalize a vector between two points
@@ -228,8 +231,9 @@ class LocationManager: ObservableObject, LocationObserver {
     }
 
     // A placeholder for the actual navigation logic
-    private func navigateTo(_ point: Point) {
-        let bearingToGoal = calculateBearing(from: currentLocation!, to: point)
+    private func navigateTo(from start: Point, to point: Point) {
+//        let bearingToGoal = calculateBearing(from: currentLocation!, to: point)
+        let bearingToGoal = calculateBearing(from: start, to: point)
         let headingDiff = bearingToGoal + currentLocation!.heading
         let normalizedHeadingDiff = normalizeAngleToPi(headingDiff)
         
