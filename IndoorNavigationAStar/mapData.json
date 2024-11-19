@@ -11,6 +11,12 @@
             "name": "Casa Rebecca",
             "latitude": 45.47908247767321,
             "longitude": 9.227200675127934
+        },
+        {
+            "id": "b3",
+            "name": "Celoria",
+            "latitude": 45.47908247767321,
+            "longitude": 9.227200675127934
         }
     ],
     "floors": [
@@ -39,6 +45,15 @@
             "building": "b2",
             "maxWidth": 5.0,
             "maxHeight": 2.75,
+            "floorMap": "piano4"
+        },
+        {
+            "id": "f3_1",
+            "name": "piano 1",
+            "number": 1,
+            "building": "b3",
+            "maxWidth": 7.67,
+            "maxHeight": 6.14,
             "floorMap": "piano4"
         }
     ],
@@ -162,6 +177,49 @@
                 "y": 1.55,
                 "heading": 1.57,
                 "floor": "f1_2"
+            }
+        },
+        {
+            "id": "v5",
+            "image": "v5",
+            "physicalWidth": 0.13,
+            "location": {
+                "x": 1.9,
+                "y": 0,
+                "heading": 0,
+                "floor": "f3_1"
+            }
+        },
+        {
+            "id": "v6",
+            "image": "v6",
+            "physicalWidth": 0.13,
+            "location": {
+                "x": 5.15,
+                "y": 2.2,
+                "heading": 3.14,
+                "floor": "f3_1"
+            }
+        }, {
+            "id": "v7",
+            "image": "v7",
+            "physicalWidth": 0.13,
+            "location": {
+                "x": 6.545,
+                "y": 1.55,
+                "heading": 1.57,
+                "floor": "f3_1"
+            }
+        },
+        {
+            "id": "v8",
+            "image": "v8",
+            "physicalWidth": 0.13,
+            "location": {
+                "x": 6.545,
+                "y": 1.55,
+                "heading": 1.57,
+                "floor": "f3_1"
             }
         }
     ]

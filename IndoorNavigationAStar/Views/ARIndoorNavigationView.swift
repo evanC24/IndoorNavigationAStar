@@ -22,6 +22,8 @@ struct ARIndoorNavigationView: View {
         return locationManager.currentLocation == nil
     }
     
+    @State private var pathRecalculationTimer: Timer?
+    
     @State private var bouncingValue = 0.8
     
     var body: some View {
@@ -56,8 +58,6 @@ struct ARIndoorNavigationView: View {
                                 .frame(width: 100, height: 100)
                                 .foregroundColor(.green)
                                 .rotationEffect(.zero)
-    //                            .animation(.default, value: locationManager.headingDifference ?? .zero)
-    //                            .animation(.easeOut, value: (locationManager.headingDifference  ?? .zero) )
                                 .padding()
                             Text(locationManager.isArrived ? "Destination arrived" : "")
                                 .font(.title2)
@@ -100,12 +100,7 @@ struct ARIndoorNavigationView: View {
 //                        Spacer()
 //                    }
                 } else {
-                    Image(systemName: "camera.viewfinder")
-                        .resizable()
-                        .frame(width: 100, height: 100)
-                    
-                    Text("Start scanning saved markers to get your location")
-                        .bold()
+                    StartNavigationView
                     Spacer()
                 }
                 
@@ -113,6 +108,7 @@ struct ARIndoorNavigationView: View {
                     
                     Button("Reset", systemImage: "multiply.circle") {
                         locationManager.resetPath(arView: arView)
+                        stopPathRecalculation()
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.large)
@@ -122,6 +118,7 @@ struct ARIndoorNavigationView: View {
                         ForEach(locationManager.endLocations, id: \.self) { endLocation in
                             Button(endLocation.name ?? "Point located at (\(endLocation.x),\(endLocation.y))") {
                                 locationManager.createPath(to: endLocation)
+                                startPathRecalculation()
                             }
                         }
                     } label: {
@@ -141,6 +138,52 @@ struct ARIndoorNavigationView: View {
         }
     }
 }
+
+
+
+// MARK: - TIMER
+
+extension ARIndoorNavigationView {
+
+    private func startPathRecalculation() {
+
+        stopPathRecalculation()
+        
+        pathRecalculationTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
+            if let endLocation = locationManager.endLocation {
+                locationManager.createPath(to: endLocation) // Recalculate path
+                print("Path recalculated")
+            }
+        }
+    }
+
+    /// Stop path recalculation by invalidating the timer.
+    private func stopPathRecalculation() {
+        pathRecalculationTimer?.invalidate()
+        pathRecalculationTimer = nil
+    }
+}
+
+
+// MARK: - SubViews
+extension ARIndoorNavigationView {
+    var StartNavigationView: some View {
+        VStack {
+            Image(systemName: "camera.viewfinder")
+                .resizable()
+                .frame(width: 100, height: 100)
+            
+            Text("Start scanning saved markers to get your location")
+                .bold()
+        }
+    }
+}
+
+
+
+
+
+
 
 
 

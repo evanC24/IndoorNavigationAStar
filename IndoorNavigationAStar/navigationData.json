@@ -1,5 +1,67 @@
 {
   "floors": [
+      {
+        "floorId": "f3_1",
+        "endLocations": [
+          {
+            "x": 6.27,
+            "y": 5.14,
+            "heading": null,
+            "isWalkable": true,
+            "name": "Angolo casa"
+          }
+        ],
+        "obstacles": [
+          {
+            "type": "RectangleObstacle",
+            "topLeft": {
+              "x": 1.97,
+              "y": 2.26,
+              "heading": null,
+              "isWalkable": false,
+              "name": null
+            },
+            "bottomRight": {
+              "x": 6.77,
+              "y": 3.86,
+              "heading": null,
+              "isWalkable": false,
+              "name": null
+            }
+          }
+        ]
+      },
+      {
+        "floorId": "f1_1",
+        "endLocations": [
+          {
+            "x": 2.9,
+            "y": 2.9,
+            "heading": null,
+            "isWalkable": true,
+            "name": "Angolo casa"
+          }
+        ],
+        "obstacles": [
+          {
+            "type": "RectangleObstacle",
+            "topLeft": {
+              "x": 0,
+              "y": 1.4,
+              "heading": null,
+              "isWalkable": false,
+              "name": null
+            },
+            "bottomRight": {
+              "x": 2.16,
+              "y": 2.53,
+              "heading": null,
+              "isWalkable": false,
+              "name": null
+            }
+          }
+        ]
+      },
     {
       "floorId": "f1_2",
       "endLocations": [
