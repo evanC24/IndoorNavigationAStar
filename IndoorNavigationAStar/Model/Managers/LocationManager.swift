@@ -230,7 +230,7 @@ class LocationManager: ObservableObject, LocationObserver {
         return Point(x: dx / length, y: dy / length)
     }
 
-    // A placeholder for the actual navigation logic
+
     private func navigateTo(from start: Point, to point: Point) {
 //        let bearingToGoal = calculateBearing(from: currentLocation!, to: point)
         let bearingToGoal = calculateBearing(from: start, to: point)
