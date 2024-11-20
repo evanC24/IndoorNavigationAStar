@@ -71,34 +71,14 @@ struct ARIndoorNavigationView: View {
                                     .rotationEffect(
                                         .radians(headingDifference + CGFloat.pi / 4)
                                     )
-        //                            .animation(.default, value: locationManager.headingDifference ?? .zero)
-        //                            .animation(.easeOut, value: (locationManager.headingDifference  ?? .zero) )
                                     .padding()
                                 DirectionHint(headingDifference: headingDifference)
                                     .padding()
                             }
                         }
 
-//                        if let nextPoint = locationManager.nextPoint {
-//                            Text(String(format: "Next Point: [%.2f, %.2f]", nextPoint.x, nextPoint.y))
-//                        }
                     }
-                    
-//                    if locationManager.isArrived {
-//                        VStack {
-//                            Image(systemName: "flag.checkered.circle")
-//                                .resizable()
-//                                .frame(width: 100, height: 100)
-//                                .foregroundColor(.green)
-//                                .scaleEffect(bouncingValue)
-//                                .animation(.spring(duration: 2, bounce: 1), value: bouncingValue)
-//                                .padding()
-//                            Text("Destination arrived")
-//                                .font(.title2)
-//                                .bold()
-//                        }
-//                        Spacer()
-//                    }
+
                 } else {
                     StartNavigationView
                     Spacer()
@@ -108,7 +88,7 @@ struct ARIndoorNavigationView: View {
                     
                     Button("Reset", systemImage: "multiply.circle") {
                         locationManager.resetPath(arView: arView)
-                        stopPathRecalculation()
+//                        stopPathRecalculation()
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.large)
@@ -118,7 +98,7 @@ struct ARIndoorNavigationView: View {
                         ForEach(locationManager.endLocations, id: \.self) { endLocation in
                             Button(endLocation.name ?? "Point located at (\(endLocation.x),\(endLocation.y))") {
                                 locationManager.createPath(to: endLocation)
-                                startPathRecalculation()
+//                                startPathRecalculation()
                             }
                         }
                     } label: {

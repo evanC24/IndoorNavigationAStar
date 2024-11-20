@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		C4626BDA2CB1362C00972712 /* PositioningLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = C4626BD92CB1362C00972712 /* PositioningLibrary */; };
+		C4AC2B262CECF6DA00F7193D /* SwiftPriorityQueue in Frameworks */ = {isa = PBXBuildFile; productRef = C4AC2B252CECF6DA00F7193D /* SwiftPriorityQueue */; };
 		C4EF97AC2CB99E760092CD1E /* IndoorNavigation in Frameworks */ = {isa = PBXBuildFile; productRef = C4EF97AB2CB99E760092CD1E /* IndoorNavigation */; };
 /* End PBXBuildFile section */
 
@@ -41,6 +42,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C4AC2B262CECF6DA00F7193D /* SwiftPriorityQueue in Frameworks */,
 				C4626BDA2CB1362C00972712 /* PositioningLibrary in Frameworks */,
 				C4EF97AC2CB99E760092CD1E /* IndoorNavigation in Frameworks */,
 			);
@@ -87,6 +89,7 @@
 			packageProductDependencies = (
 				C4626BD92CB1362C00972712 /* PositioningLibrary */,
 				C4EF97AB2CB99E760092CD1E /* IndoorNavigation */,
+				C4AC2B252CECF6DA00F7193D /* SwiftPriorityQueue */,
 			);
 			productName = IndoorNavigationAStar;
 			productReference = C4626BC72CB1360400972712 /* IndoorNavigationAStar.app */;
@@ -119,6 +122,7 @@
 			packageReferences = (
 				C4626BD82CB1362C00972712 /* XCRemoteSwiftPackageReference "PositioningLibrary" */,
 				C4EF97AA2CB99E760092CD1E /* XCLocalSwiftPackageReference "../IndoorNavigation" */,
+				C4AC2B242CECF6DA00F7193D /* XCRemoteSwiftPackageReference "SwiftPriorityQueue" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C4626BC82CB1360400972712 /* Products */;
@@ -383,6 +387,14 @@
 				minimumVersion = 0.2.0;
 			};
 		};
+		C4AC2B242CECF6DA00F7193D /* XCRemoteSwiftPackageReference "SwiftPriorityQueue" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/davecom/SwiftPriorityQueue.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.4.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -390,6 +402,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C4626BD82CB1362C00972712 /* XCRemoteSwiftPackageReference "PositioningLibrary" */;
 			productName = PositioningLibrary;
+		};
+		C4AC2B252CECF6DA00F7193D /* SwiftPriorityQueue */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C4AC2B242CECF6DA00F7193D /* XCRemoteSwiftPackageReference "SwiftPriorityQueue" */;
+			productName = SwiftPriorityQueue;
 		};
 		C4EF97AB2CB99E760092CD1E /* IndoorNavigation */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -25,7 +25,7 @@ class LocationManager: ObservableObject, LocationObserver {
     @Published var currentFloor: String?
     @Published var nextPoint: Point?
     
-    let ACCEPTED_DISTANCE: Float = 0.10
+    let FIXED_DISTANCE: Float = 0.5
     
 //    @Published var adjustedHeading: CGFloat = 0
     
@@ -100,28 +100,10 @@ class LocationManager: ObservableObject, LocationObserver {
             isArrived = false
         }
         
-        if let path = self.originalPath, !path.isEmpty /*let pathToVisit = self.pathToVisit, !pathToVisit.isEmpty*/ {
-//                var pathPoints: [Point] = []
-//                for (i, pathPoint) in path.enumerated() {
-//                    if i % 10 == 0 || i == path.count - 1 {
-//                        print("#\(i): (\(pathPoint.x),\(pathPoint.y))")
-//                        pathPoints.append(pathPoint)
-//                    }
-//                }
-//                guideUser(from: currentLocation!, to: pathPoints.first!)
-//
-//            if let nextPoint = findClosestPathPoint(path: path, from: currentLocation!) {
-            if let closestPathPoint = findClosestPathPoint(path: pathToVisit ?? [], from: currentLocation!) {
-                self.nextPoint = closestPathPoint
-                let startIndexPathToVisit = path.firstIndex(of: closestPathPoint)
-                self.pathToVisit = Array(path[startIndexPathToVisit!...])
-//                guideUser(from: currentLocation!, to: nextPoint)
-                guideUser(from: closestPathPoint, to: path[startIndexPathToVisit!+1])
-            }
+        if let path = self.originalPath, !path.isEmpty {
+            let nextPointIndex = 4
+            guideUser(from: currentLocation!, to: path[nextPointIndex])
         }
-        /*else {*/
-//            guideUser(from: currentLocation!, to: endLocation )
-//        }
     }
     
     
@@ -136,36 +118,12 @@ class LocationManager: ObservableObject, LocationObserver {
         self.endLocation = endLocation
         self.originalPath = map.findPath( start: currentLocation,
                              goal: endLocation)
-        self.pathToVisit = originalPath
-        
-//        addDestinationAnchorToARView(arView: arView, goalPoint: endLocation)
-//        addPoints()
-        
+        self.pathToVisit = originalPath        
     }
-    
-//    func addPoints() {
-//        guard let currentLocation else { return }
-//        guard let arView else { return  }
-//        
-//        if let path = self.originalPath {
-//            var pointsToRender: [Point] = []
-//            for (i, pathPoint) in path.enumerated() {
-//                if i % 30 == 0 || i == path.count - 1 {
-//                    print("#\(i): (\(pathPoint.x),\(pathPoint.y))")
-//                    pointsToRender.append(pathPoint)
-//                }
-//            }
-//            
-//            removeAllAnchors(arView: arView)
-//            addPointsToARViewWithGradient(arView: arView, points: pointsToRender, startPoint: currentLocation, goalPoint: endLocation)
-//            
-//            //        guideUserToGoal(currentLocation: currentLocation, goalLocation: self.goalLocation)
-//            //            guideUserToGoal(currentLocation: currentLocation, goalLocation: path.first!)
-//        }
-//    }
+
     
     func resetPath(arView: ARView) {
-        removeAllAnchors(arView: arView)
+//        removeAllAnchors(arView: arView)
         self.endLocation = nil
         self.originalPath = nil
         self.pathToVisit = nil
@@ -238,10 +196,11 @@ class LocationManager: ObservableObject, LocationObserver {
         let normalizedHeadingDiff = normalizeAngleToPi(headingDiff)
         
         headingDifference = CGFloat(normalizedHeadingDiff)
+        
         distance = euclideanDistance(from: currentLocation!, to: point)
         
-        if point != endLocation && distance! <= ACCEPTED_DISTANCE {
-//            self.originalPath?.removeFirst()
+        if point != endLocation && distance! <= FIXED_DISTANCE {
+            self.originalPath?.removeFirst()
             self.pathToVisit?.removeFirst()
             print("Removed: \(String(describing: point))")
             print("Path size: \(String(describing: self.originalPath?.count))")
