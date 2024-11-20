@@ -25,28 +25,13 @@ class LocationManager: ObservableObject, LocationObserver {
     @Published var currentFloor: String?
     @Published var nextPoint: Point?
     
-    let FIXED_DISTANCE: Float = 0.5
-    
-//    @Published var adjustedHeading: CGFloat = 0
-    
-// camera ivan
-//    @Published var width: Float = 2.9
-//    @Published var height: Float = 2.9
-    
-// camera rebecca
-//    @Published var width: Float = 2.75
-//    @Published var height: Float = 5
-    
-//    @Published var width: Float = 7.69
-//    @Published var height: Float = 3.73
+    let FIXED_DISTANCE: Float = 1
+    var NEXT_INDEX: Int { Int(FIXED_DISTANCE*10) - 1 }
     
     private var locationProvider: LocationProvider!
     private var arView: ARView?
     
     @Published var currentLocation: Point?
-//    @Published var endLocation: Point = Point(x: 2.9, y: 2.9)
-//    @Published var endLocation: Point = Point(x: 5, y: 2.75 - 0.56 )
-//    @Published var endLocation: Point = Point( x: 5.285, y: 3.73 )
     @Published var endLocation: Point?
 
     
@@ -58,12 +43,8 @@ class LocationManager: ObservableObject, LocationObserver {
     private var endAnchorEntity: AnchorEntity?
     
     @Published var map: Map?
+    var pointEntityPool: [ModelEntity] = []
     
-    
-//    
-//    init() {
-//           loadMapData()
-//       }
     
     func startLocationUpdates(arView: ARView) {
 //        let myMarkers = loadDynamicData()
@@ -95,14 +76,15 @@ class LocationManager: ObservableObject, LocationObserver {
         )
         
         if let endLocation = self.endLocation {
-            isArrived = euclideanDistance(from: currentLocation!, to: endLocation) < 1
+            isArrived = euclideanDistance(from: currentLocation!, to: endLocation) <= 1
         } else {
             isArrived = false
         }
         
-        if let path = self.originalPath, !path.isEmpty {
-            let nextPointIndex = 4
-            guideUser(from: currentLocation!, to: path[nextPointIndex])
+        if let path = self.originalPath, path.count > NEXT_INDEX {
+            if let closestPoint = findClosestPathPoint(path: path, from: currentLocation!) {
+                guideUser(from: closestPoint, to: path[NEXT_INDEX])
+            }
         }
     }
     
@@ -114,10 +96,9 @@ class LocationManager: ObservableObject, LocationObserver {
         guard let arView else { return  }
         guard let map else { return }
         
-        resetPath(arView: arView)
+//        resetPath(arView: arView)
         self.endLocation = endLocation
-        self.originalPath = map.findPath( start: currentLocation,
-                             goal: endLocation)
+        self.originalPath = map.findPath( start: currentLocation, goal: endLocation)
         self.pathToVisit = originalPath        
     }
 
@@ -140,44 +121,9 @@ class LocationManager: ObservableObject, LocationObserver {
         
         let floorData = loadFloorData(from: "navigationData", for: newFloor.id)
         self.endLocations = floorData.endLocations
-//        self.endLocation = floorData.endLocations.first
         let obstacles = floorData.obstacles
         
-        // Process endLocations and obstacles as needed
-        print("End Locations: \(endLocations)")
-        print("Obstacles: \(obstacles)")
-        
-        self.map = Map(width: newFloor.maxWidth, height: newFloor.maxHeight, obstacles: obstacles /* shortestPathFactor: 0.7*/)
-    }
-    
-
-    
-    private func guideUser(from start: Point, to end: Point) {
-        guard let map = self.map else { return }
-
-//        // Check if nextPoint is inside an obstacle
-//        if map.obstacles.contains(where: { $0.contains(point: nextPoint)}) {
-//            
-//            // Find the closest edge point on the obstacle to nextPoint
-//            if let closestEdgePoint = map.obstacles.compactMap({ $0.getClosestEdgePoint(of: nextPoint)})
-//                .min(by: { euclideanDistance(from: $0, to: nextPoint) < euclideanDistance(from: $1, to: nextPoint) }) {
-//                
-//                // Calculate a new point that is slightly outside the obstacle
-//                let offsetDistance: Float = 0.3 // Adjust this distance as needed
-//                let directionVector = normalizeVector(from: closestEdgePoint, to: nextPoint)
-//                let adjustedPoint = Point(
-//                    x: closestEdgePoint.x + directionVector.x * offsetDistance,
-//                    y: closestEdgePoint.y + directionVector.y * offsetDistance
-//                )
-//                
-//                // Now use the adjusted point instead of the original nextPoint
-//                navigateTo(adjustedPoint)
-//            }
-//        } else {
-//            // Use the next point directly if it's not in an obstacle
-//            navigateTo(nextPoint)
-//        }
-        navigateTo(from: start, to: end)
+        self.map = Map(width: newFloor.maxWidth, height: newFloor.maxHeight, obstacles: obstacles)
     }
 
     // Function to normalize a vector between two points
@@ -189,8 +135,7 @@ class LocationManager: ObservableObject, LocationObserver {
     }
 
 
-    private func navigateTo(from start: Point, to point: Point) {
-//        let bearingToGoal = calculateBearing(from: currentLocation!, to: point)
+    private func guideUser(from start: Point, to point: Point) {
         let bearingToGoal = calculateBearing(from: start, to: point)
         let headingDiff = bearingToGoal + currentLocation!.heading
         let normalizedHeadingDiff = normalizeAngleToPi(headingDiff)
@@ -202,47 +147,19 @@ class LocationManager: ObservableObject, LocationObserver {
         if point != endLocation && distance! <= FIXED_DISTANCE {
             self.originalPath?.removeFirst()
             self.pathToVisit?.removeFirst()
-            print("Removed: \(String(describing: point))")
-            print("Path size: \(String(describing: self.originalPath?.count))")
-//            print("Path size: \(String(describing: self.pathToVisit?.count))")
         }
     }
 
-    
-//    private func guideUser(from currentLocation: Point, to nextPoint: Point) {
-//        guard let map = map else {return}
-//        
-//        if map.obstacles.contains(where: {$0.contains(point: nextPoint)}) {
-//            
-//        }
-//        
-//        // measure heading
-//        let bearingToGoal = calculateBearing(from: currentLocation, to: nextPoint)
-//        let headingDiff = bearingToGoal + currentLocation.heading
-//        let normalizedHeadingDiff = normalizeAngleToPi(headingDiff)
-//        
-//        headingDifference = CGFloat(normalizedHeadingDiff)
-//        distance = euclideanDistance(from: currentLocation, to: nextPoint)
-//        
-////        if euclideanDistance(from: currentLocation, to: endLocation) < 1 { // If user is close enough to the goal location we return
-////            isArrived = true
-////            print("Is arrived: \(String(describing: goalLocation))")
-////            return
-//        /*} else*/ if nextPoint != endLocation && distance! <= 0.3 { // otherwise
-////            print("Removed: \(String(describing: self.path?.first!))")
-//            print("Removed: \(String(describing: nextPoint))")
-//            self.path?.removeFirst()
-//            print("Path size: \(String(describing: self.path?.count))")
-//        }
-////        isArrived = false // if we are not close enough to any path point or destination we are not arrived
-//    }
-    
+
     
     func centerToUserPosition() {
         self.locationProvider.centerToUserPosition()
     }
     
-    
+}
+
+// MARK: - Load Dynamic Data
+extension LocationManager {
     private func loadDynamicData() -> [Marker] {
 
         let b1 = Building(
@@ -344,138 +261,130 @@ class LocationManager: ObservableObject, LocationObserver {
         
         return [m0, m1, m2, m_r1, m_r2, m_r3, m_r4, v1, v2, v3, v4]
     }
-    
-    
-    
-    
+}
+
+
+
 // MARK: - ARVIEW MANAGER
-    
-    func addPointsToARView(arView: ARView, points: [Point]) {
-        for point in points {
-            let modelEntity = getPointEntity()
-            modelEntity.position = SIMD3(x: point.x, y: 0, z: point.y)
-            
-            let anchorEntity = AnchorEntity(world: modelEntity.position)
-            anchorEntity.addChild(modelEntity)
-            arView.scene.addAnchor(anchorEntity)
-            
-            anchorEntities.append(anchorEntity)
-        }
-    }
-    
-    func addDestinationAnchorToARView(arView: ARView, goalPoint: Point) {
-        let size: Float = 0.2
-        let mesh = MeshResource.generateSphere(radius: size)
-        let material = SimpleMaterial(color: .blue, isMetallic: false)
-        let modelEntity = ModelEntity(mesh: mesh, materials: [material])
-        
-        if let endAnchorEntity {
-            DispatchQueue.main.async {
-                arView.scene.removeAnchor(endAnchorEntity)
-            }
-            self.endAnchorEntity = nil
-            print("End anchor removed.")
-        }
-
-        if let currentLocation {
-            modelEntity.position = SIMD3(x: goalPoint.x - currentLocation.x, y: 0.5, z: goalPoint.y - currentLocation.y)
-//            modelEntity.position = SIMD3(x: goalPoint.x, y: 0.5, z: goalPoint.y)
-            let anchorEntity = AnchorEntity(world: modelEntity.position)
-            anchorEntity.addChild(modelEntity)
-            endAnchorEntity = anchorEntity
-            arView.scene.addAnchor(anchorEntity)
-        }
-    }
-
-    
-    func removeAllAnchors(arView: ARView) {
-        DispatchQueue.main.async {
-            for anchor in self.anchorEntities {
-                arView.scene.removeAnchor(anchor)
-                print("removed: \(anchor)")
-            }
-            self.anchorEntities.removeAll()
-            print("All anchors removed.")
-        }
-    }
-
-    
-    var pointEntityPool: [ModelEntity] = []
-    
-    func getPointEntity() -> ModelEntity {
-        if let entity = pointEntityPool.popLast() {
-            return entity
-        } else {
-            let size: Float = 0.05
-            let mesh = MeshResource.generateSphere(radius: size)
-            let material = SimpleMaterial(color: .red, isMetallic: false)
-            return ModelEntity(mesh: mesh, materials: [material])
-        }
-    }
-    
-    func interpolateColor(from start: UIColor, to end: UIColor, fraction: CGFloat) -> UIColor {
-        var startRed: CGFloat = 0
-        var startGreen: CGFloat = 0
-        var startBlue: CGFloat = 0
-        var startAlpha: CGFloat = 0
-        start.getRed(&startRed, green: &startGreen, blue: &startBlue, alpha: &startAlpha)
-        
-        var endRed: CGFloat = 0
-        var endGreen: CGFloat = 0
-        var endBlue: CGFloat = 0
-        var endAlpha: CGFloat = 0
-        end.getRed(&endRed, green: &endGreen, blue: &endBlue, alpha: &endAlpha)
-        
-        let red = startRed + (endRed - startRed) * fraction
-        let green = startGreen + (endGreen - startGreen) * fraction
-        let blue = startBlue + (endBlue - startBlue) * fraction
-        let alpha = startAlpha + (endAlpha - startAlpha) * fraction
-        
-        return UIColor(red: red, green: green, blue: blue, alpha: alpha)
-    }
-    
-    func addPointsToARViewWithGradient(arView: ARView, points: [Point], startPoint: Point, goalPoint: Point) {
-        DispatchQueue.main.async { [self] in
-            let startColor = UIColor.red
-            let goalColor = UIColor.green
-
-            let totalDistance = hypot(goalPoint.x - startPoint.x, goalPoint.y - startPoint.y)
-
+extension LocationManager {
+        func addPointsToARView(arView: ARView, points: [Point]) {
             for point in points {
-                let distanceFromStart = hypot(point.x - startPoint.x, point.y - startPoint.y)
-                let fraction = distanceFromStart / totalDistance
-
-                let color = self.interpolateColor(from: startColor, to: goalColor, fraction: CGFloat(fraction))
-
-                let size: Float = 0.1
-                let mesh = MeshResource.generateSphere(radius: size)
-                let material = SimpleMaterial(color: color, isMetallic: false)
-                let modelEntity = ModelEntity(mesh: mesh, materials: [material])
-
+                let modelEntity = getPointEntity()
+                modelEntity.position = SIMD3(x: point.x, y: 0, z: point.y)
                 
-                let cameraPosition = arView.cameraTransform.translation
-                
-                let adjustedX = abs(startPoint.x - point.x)
-                let adjustedZ = abs(startPoint.y - point.y)
-                
-                modelEntity.position = SIMD3(x: adjustedX, y: 0, z: adjustedZ)
-
-                print(modelEntity.position)
-
                 let anchorEntity = AnchorEntity(world: modelEntity.position)
                 anchorEntity.addChild(modelEntity)
                 arView.scene.addAnchor(anchorEntity)
-
-                self.anchorEntities.append(anchorEntity)
+                
+                anchorEntities.append(anchorEntity)
             }
         }
-    }
+        
+        func addDestinationAnchorToARView(arView: ARView, goalPoint: Point) {
+            let size: Float = 0.2
+            let mesh = MeshResource.generateSphere(radius: size)
+            let material = SimpleMaterial(color: .blue, isMetallic: false)
+            let modelEntity = ModelEntity(mesh: mesh, materials: [material])
+            
+            if let endAnchorEntity {
+                DispatchQueue.main.async {
+                    arView.scene.removeAnchor(endAnchorEntity)
+                }
+                self.endAnchorEntity = nil
+                print("End anchor removed.")
+            }
+
+            if let currentLocation {
+                modelEntity.position = SIMD3(x: goalPoint.x - currentLocation.x, y: 0.5, z: goalPoint.y - currentLocation.y)
+    //            modelEntity.position = SIMD3(x: goalPoint.x, y: 0.5, z: goalPoint.y)
+                let anchorEntity = AnchorEntity(world: modelEntity.position)
+                anchorEntity.addChild(modelEntity)
+                endAnchorEntity = anchorEntity
+                arView.scene.addAnchor(anchorEntity)
+            }
+        }
+
+        
+        func removeAllAnchors(arView: ARView) {
+            DispatchQueue.main.async {
+                for anchor in self.anchorEntities {
+                    arView.scene.removeAnchor(anchor)
+                    print("removed: \(anchor)")
+                }
+                self.anchorEntities.removeAll()
+                print("All anchors removed.")
+            }
+        }
+        
+        func getPointEntity() -> ModelEntity {
+            if let entity = pointEntityPool.popLast() {
+                return entity
+            } else {
+                let size: Float = 0.05
+                let mesh = MeshResource.generateSphere(radius: size)
+                let material = SimpleMaterial(color: .red, isMetallic: false)
+                return ModelEntity(mesh: mesh, materials: [material])
+            }
+        }
+        
+        func interpolateColor(from start: UIColor, to end: UIColor, fraction: CGFloat) -> UIColor {
+            var startRed: CGFloat = 0
+            var startGreen: CGFloat = 0
+            var startBlue: CGFloat = 0
+            var startAlpha: CGFloat = 0
+            start.getRed(&startRed, green: &startGreen, blue: &startBlue, alpha: &startAlpha)
+            
+            var endRed: CGFloat = 0
+            var endGreen: CGFloat = 0
+            var endBlue: CGFloat = 0
+            var endAlpha: CGFloat = 0
+            end.getRed(&endRed, green: &endGreen, blue: &endBlue, alpha: &endAlpha)
+            
+            let red = startRed + (endRed - startRed) * fraction
+            let green = startGreen + (endGreen - startGreen) * fraction
+            let blue = startBlue + (endBlue - startBlue) * fraction
+            let alpha = startAlpha + (endAlpha - startAlpha) * fraction
+            
+            return UIColor(red: red, green: green, blue: blue, alpha: alpha)
+        }
+        
+        func addPointsToARViewWithGradient(arView: ARView, points: [Point], startPoint: Point, goalPoint: Point) {
+            DispatchQueue.main.async { [self] in
+                let startColor = UIColor.red
+                let goalColor = UIColor.green
+
+                let totalDistance = hypot(goalPoint.x - startPoint.x, goalPoint.y - startPoint.y)
+
+                for point in points {
+                    let distanceFromStart = hypot(point.x - startPoint.x, point.y - startPoint.y)
+                    let fraction = distanceFromStart / totalDistance
+
+                    let color = self.interpolateColor(from: startColor, to: goalColor, fraction: CGFloat(fraction))
+
+                    let size: Float = 0.1
+                    let mesh = MeshResource.generateSphere(radius: size)
+                    let material = SimpleMaterial(color: color, isMetallic: false)
+                    let modelEntity = ModelEntity(mesh: mesh, materials: [material])
+
+                    
+                    let cameraPosition = arView.cameraTransform.translation
+                    
+                    let adjustedX = abs(startPoint.x - point.x)
+                    let adjustedZ = abs(startPoint.y - point.y)
+                    
+                    modelEntity.position = SIMD3(x: adjustedX, y: 0, z: adjustedZ)
+
+                    print(modelEntity.position)
+
+                    let anchorEntity = AnchorEntity(world: modelEntity.position)
+                    anchorEntity.addChild(modelEntity)
+                    arView.scene.addAnchor(anchorEntity)
+
+                    self.anchorEntities.append(anchorEntity)
+                }
+            }
+        }
 
 
-
-    
-    
-    
 }
-
 

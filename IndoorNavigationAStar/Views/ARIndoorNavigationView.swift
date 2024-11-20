@@ -88,7 +88,7 @@ struct ARIndoorNavigationView: View {
                     
                     Button("Reset", systemImage: "multiply.circle") {
                         locationManager.resetPath(arView: arView)
-//                        stopPathRecalculation()
+                        stopPathRecalculation()
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.large)
@@ -98,7 +98,7 @@ struct ARIndoorNavigationView: View {
                         ForEach(locationManager.endLocations, id: \.self) { endLocation in
                             Button(endLocation.name ?? "Point located at (\(endLocation.x),\(endLocation.y))") {
                                 locationManager.createPath(to: endLocation)
-//                                startPathRecalculation()
+                                startPathRecalculation()
                             }
                         }
                     } label: {
@@ -129,8 +129,14 @@ extension ARIndoorNavigationView {
 
         stopPathRecalculation()
         
-        pathRecalculationTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
+        guard !locationManager.isArrived else {
+            stopPathRecalculation()
+            return
+        }
+        
+        pathRecalculationTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
             if let endLocation = locationManager.endLocation {
+                
                 locationManager.createPath(to: endLocation) // Recalculate path
                 print("Path recalculated")
             }
