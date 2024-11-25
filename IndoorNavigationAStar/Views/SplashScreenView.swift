@@ -22,7 +22,7 @@ struct SplashScreenView: View {
                         .frame(width: 100, height: 100)
                         .padding()
                     
-                    Text("AstaR Indoor Navigation")
+                    Text("A*R Indoor Navigation")
                         .font(.title)
                         .bold()
                         .multilineTextAlignment(.center)

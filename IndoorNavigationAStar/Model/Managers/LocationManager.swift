@@ -15,15 +15,22 @@ import IndoorNavigation
 
 class LocationManager: ObservableObject, LocationObserver {
     
+    @Published var map: Map?
     @Published var width: Float = 0
     @Published var height: Float = 0
-    @Published var endLocations: [Point] = []
-    
-    @Published var headingDifference: CGFloat?
-    @Published var distance: Float?
     @Published var currentBuilding: String?
     @Published var currentFloor: String?
+    @Published var endLocations: [Point] = []
+    @Published var endLocation: Point?
+    
+    @Published var currentLocation: Point?
+    @Published var headingDifference: CGFloat?
+    @Published var distance: Float?
+
+    @Published var originalPath: [Point]?
     @Published var nextPoint: Point?
+    
+    @Published var isArrived: Bool = false
     
     let FIXED_DISTANCE: Float = 1
     var NEXT_INDEX: Int { Int(FIXED_DISTANCE*10) - 1 }
@@ -31,39 +38,17 @@ class LocationManager: ObservableObject, LocationObserver {
     private var locationProvider: LocationProvider!
     private var arView: ARView?
     
-    @Published var currentLocation: Point?
-    @Published var endLocation: Point?
-
-    
-    @Published var originalPath: [Point]?
-    @Published var pathToVisit: [Point]?
-    @Published var isArrived: Bool = false
-
     private var anchorEntities: [AnchorEntity] = []
     private var endAnchorEntity: AnchorEntity?
-    
-    @Published var map: Map?
-    var pointEntityPool: [ModelEntity] = []
+    private var pointEntityPool: [ModelEntity] = []
     
     
     func startLocationUpdates(arView: ARView) {
-//        let myMarkers = loadDynamicData()
-//        self.locationProvider = LocationProvider(arView: arView, markers: myMarkers)
         self.locationProvider = LocationProvider(arView: arView, jsonName: "mapData")
         self.locationProvider.addLocationObserver(locationObserver: self)
         
-        let margin: CGFloat = 32
-        let floorMapRect = CGRect(
-            x: margin,
-            y: margin,
-            width: 200,
-            height: 200
-        )
-        
         self.arView = arView
-//        self.locationProvider.showFloorMap(floorMapRect)
         self.locationProvider.start()
-//        self.locationProvider.startFollowUser()
     }
     
     
@@ -88,34 +73,31 @@ class LocationManager: ObservableObject, LocationObserver {
         }
     }
     
-    
-
-    
     func createPath(to endLocation: Point) {
         guard let currentLocation else { return }
         guard let arView else { return  }
         guard let map else { return }
         
-//        resetPath(arView: arView)
         self.endLocation = endLocation
-        self.originalPath = map.findPath( start: currentLocation, goal: endLocation)
-        self.pathToVisit = originalPath        
+        if let path = map.findPath(start: currentLocation, goal: endLocation) {
+            self.originalPath = path
+        }
     }
 
     
     func resetPath(arView: ARView) {
-//        removeAllAnchors(arView: arView)
         self.endLocation = nil
         self.originalPath = nil
-        self.pathToVisit = nil
     }
     
     func onBuildingChanged(_ newBuilding: PositioningLibrary.Building) {
+        resetPath(arView: self.arView!)
         currentBuilding = newBuilding.name
         print("Building changed: \(newBuilding.name)")
     }
     
     func onFloorChanged(_ newFloor: PositioningLibrary.Floor) {
+        resetPath(arView: self.arView!)
         currentFloor = "\(newFloor.number)°"
         print("Floor changed: \(newFloor.number)")
         
@@ -125,15 +107,6 @@ class LocationManager: ObservableObject, LocationObserver {
         
         self.map = Map(width: newFloor.maxWidth, height: newFloor.maxHeight, obstacles: obstacles)
     }
-
-    // Function to normalize a vector between two points
-    private func normalizeVector(from start: Point, to end: Point) -> Point {
-        let dx = end.x - start.x
-        let dy = end.y - start.y
-        let length = sqrt(dx * dx + dy * dy)
-        return Point(x: dx / length, y: dy / length)
-    }
-
 
     private func guideUser(from start: Point, to point: Point) {
         let bearingToGoal = calculateBearing(from: start, to: point)
@@ -146,11 +119,8 @@ class LocationManager: ObservableObject, LocationObserver {
         
         if point != endLocation && distance! <= FIXED_DISTANCE {
             self.originalPath?.removeFirst()
-            self.pathToVisit?.removeFirst()
         }
     }
-
-
     
     func centerToUserPosition() {
         self.locationProvider.centerToUserPosition()
@@ -167,7 +137,7 @@ extension LocationManager {
             coord: CLLocationCoordinate2D(
                 latitude: 45.47908247767321, longitude: 9.227200675127934))
         let b2 = Building(
-            id: "b2", name: "Casa Rebecca",
+            id: "b2", name: "Casa R",
             coord: CLLocationCoordinate2D(
                 latitude: 45.47908247767321, longitude: 9.227200675127934))
 

@@ -50,7 +50,6 @@ struct ARIndoorNavigationView: View {
                 Spacer()
                 
                 if locationManager.currentLocation != nil {
-                    
                     if locationManager.originalPath != nil && !locationManager.originalPath!.isEmpty {
                         if locationManager.isArrived {
                             Image(systemName: "flag.checkered.circle" )
@@ -78,7 +77,6 @@ struct ARIndoorNavigationView: View {
                         }
 
                     }
-
                 } else {
                     StartNavigationView
                     Spacer()
@@ -114,7 +112,6 @@ struct ARIndoorNavigationView: View {
         }
         .onAppear {
             locationManager.startLocationUpdates(arView: arView)
-            //            locationManager.showFloorMap(CGRect(x: 20, y: 60, width: 147, height: 223)) // Call the method here
         }
     }
 }
